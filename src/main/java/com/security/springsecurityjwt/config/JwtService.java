@@ -3,6 +3,7 @@ package com.security.springsecurityjwt.config;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 import javax.crypto.SecretKey;
@@ -12,13 +13,16 @@ import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "wkdEvvxaftidO840wJaSurY5JiFTX2sT";
+    private static final String SECRET_KEY = "lcQUOLgYSFUoro6ZiUoczuFBWHTARnpq+4veSB2f0HSGrsPV4EIUQtsOCEoLKqe2";
+
+    SecretKey key = Jwts.SIG.HS256.key().build();
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -39,11 +43,13 @@ public class JwtService {
     ){
         return Jwts
             .builder()
+            .issuer("changhyeon")
+            .id(UUID.randomUUID().toString())
             .claims(extraClaims)
             .subject(userDetails.getUsername())
             .issuedAt(new Date(System.currentTimeMillis()))
             .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
-            .signWith(getSignInKey())
+            .signWith(key)
             .compact();
     }
 
@@ -63,14 +69,9 @@ public class JwtService {
     private Claims extractAllClaims(String token){
         return Jwts
             .parser()
-            .verifyWith(getSignInKey())
+            .verifyWith(key)
             .build()
-            .parseEncryptedClaims(token)
+            .parseSignedClaims(token)
             .getPayload();
-    }
-
-    private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

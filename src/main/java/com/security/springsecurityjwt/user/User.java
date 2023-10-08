@@ -37,12 +37,13 @@ public class User implements UserDetails {
     private Role role;
 
     @Builder
-    public User(Long id, String firstname, String lastname, String email, String password) {
+    public User(Long id, String firstname, String lastname, String email, String password, Role role) {
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.password = password;
+        this.role = role;
     }
 
     // 권한 가져오기
@@ -53,7 +54,7 @@ public class User implements UserDetails {
 
     @Override
     public String getPassword() {
-        return null;
+        return password;
     }
 
     @Override
